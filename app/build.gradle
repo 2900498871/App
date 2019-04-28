@@ -32,4 +32,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation "com.squareup.okhttp3:okhttp:3.14.1"
     implementation "org.litepal.android:java:3.0.0"
+
 }
