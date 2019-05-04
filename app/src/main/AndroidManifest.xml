@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sc.main">
     <application
-        android:name="org.litepal.LitePalApplication"
+        android:name="com.sc.main.WeatherApplication"
         android:allowBackup="true"
         android:icon="@drawable/logo"
-        android:label="天气预报"
+        android:label="天气"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">

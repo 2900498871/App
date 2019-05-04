@@ -1,68 +1,15 @@
-package com.sc.util;
-
-import android.app.Application;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
+package com.sc.main;
 
 import com.bravin.btoast.BToast;
-import com.google.gson.Gson;
 
-import java.io.IOException;
+import org.litepal.LitePalApplication;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+public class WeatherApplication extends LitePalApplication {
 
-/**
- * 提供一个工具类
- */
-public class Utils {
-
-
-
-    static Message message= new Message();
-    public static Gson getProvinces(String address, OkHttpClient client){
-        Gson gson=null;
-        FormBody body= new FormBody.Builder()
-                //.add("name","aaa")
-                .build();
-        Request request= new Request.Builder().post(body).url("http://guolin.tech/api/china").build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-            }
-        });
-
-
-
-        return gson;
-    }
-
-    /**
-     * handler 方法
-     */
-    private static  Handler handler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            if(msg.what==1){
-
-            }
-
-        }
-    };
-
-//这是弹框
-  //       BToast.Config.getInstance()
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        BToast.Config.getInstance()
 //                .setAnimate() // Whether to startAnimation. default is fasle;
 //                .setAnimationDuration()// Animation duration. default is 800 millisecond
 //                .setAnimationGravity()// Animation entering position. default is BToast.ANIMATION_GRAVITY_TOP
@@ -80,9 +27,6 @@ public class Utils {
 //                .setShortDurationMillis()// short duration. default is 3000 millisecond
 //                .setShowIcon()// show or hide icon
 //                .setTextSize()// text size. sp unit
-  //              .apply(this);// must call
-
-
-
-
+                .apply(this);// must call
+    }
 }
