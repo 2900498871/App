@@ -7,6 +7,7 @@ import android.os.Message;
 
 import com.bravin.btoast.BToast;
 import com.google.gson.Gson;
+import com.sc.SysConfig;
 
 import java.io.IOException;
 
@@ -30,7 +31,7 @@ public class Utils {
         FormBody body= new FormBody.Builder()
                 //.add("name","aaa")
                 .build();
-        Request request= new Request.Builder().post(body).url("http://guolin.tech/api/china").build();
+        Request request= new Request.Builder().post(body).url(SysConfig.PROVINCE_URL).build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
