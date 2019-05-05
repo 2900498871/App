@@ -1,8 +1,8 @@
 package com.sc.main.beans;
 
-import org.litepal.crud.LitePalSupport;
+import org.litepal.crud.DataSupport;
 
-public class city extends LitePalSupport {
+public class city extends DataSupport {
     private int id;
     private String cityName;
     private int cityCode;

@@ -1,8 +1,8 @@
 package com.sc.main.beans;
 
-import org.litepal.crud.LitePalSupport;
+import org.litepal.crud.DataSupport;
 
-public class province extends LitePalSupport {
+public class province extends DataSupport {
     private int id;
     private String provinceName;
     private int provinceCode;

@@ -1,14 +1,18 @@
 package com.sc.main;
 
+import android.app.Application;
+
 import com.bravin.btoast.BToast;
 
-import org.litepal.LitePalApplication;
+import org.litepal.LitePal;
 
-public class WeatherApplication extends LitePalApplication {
+
+public class WeatherApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
+        LitePal.initialize(this);
         BToast.Config.getInstance()
 //                .setAnimate() // Whether to startAnimation. default is fasle;
 //                .setAnimationDuration()// Animation duration. default is 800 millisecond

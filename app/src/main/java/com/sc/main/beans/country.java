@@ -1,8 +1,8 @@
 package com.sc.main.beans;
 
-import org.litepal.crud.LitePalSupport;
+import org.litepal.crud.DataSupport;
 
-public class country extends LitePalSupport {
+public class country extends DataSupport {
     private int id;
     private String countryName;
     private String weatherId;
