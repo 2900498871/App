@@ -61,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * 加载省份列表
+     * @param client
+     */
     public void getProvinces(OkHttpClient client) {
         Gson gson = null;
      /*   FormBody body = new FormBody.Builder()
@@ -70,9 +74,12 @@ public class MainActivity extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                message= new Message();
-                message.what=SysConfig.ERROR;
-                handler.sendMessage(message);
+                List<province> newsList = DataSupport.findAll(province.class);
+                if(newsList==null||newsList.size()==0) {
+                    message = new Message();
+                    message.what = SysConfig.ERROR;
+                    handler.sendMessage(message);
+                }
             }
 
             @Override
