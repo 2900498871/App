@@ -30,23 +30,12 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     Message message= null;
-    private   Handler handler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            if(msg.what==SysConfig.ERROR){
-                BToast.error(MainActivity.this).text("请检查网络连接").show();
-            }else if(msg.what==SysConfig.INITERROR){
-                BToast.error(MainActivity.this).text("初始化城市列表失败").show();
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        OkHttpClient okHttpClient= new OkHttpClient();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button button= findViewById(R.id.button);
+       /* Button button= findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,18 +43,19 @@ public class MainActivity extends AppCompatActivity {
                         .text("this is text")
                         .show();
             }
-        });
+        });*/
 
-        OkHttpClient okHttpClient= new OkHttpClient();
-        getProvinces(okHttpClient);
+       //初始化城市数据
+      //  initProvinces(okHttpClient);
+
     }
 
 
     /**
-     * 加载省份列表
+     * 初始化省份列表
      * @param client
      */
-    public void getProvinces(OkHttpClient client) {
+    public void initProvinces(OkHttpClient client) {
         Gson gson = null;
      /*   FormBody body = new FormBody.Builder()
                 .add("name","aaa")
@@ -99,5 +89,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    private   Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what==SysConfig.ERROR){
+                BToast.error(MainActivity.this).text("请检查网络连接").show();
+            }else if(msg.what==SysConfig.INITERROR){
+                BToast.error(MainActivity.this).text("初始化数据失败").show();
+            }
+        }
+    };
 }

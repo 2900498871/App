@@ -19,6 +19,11 @@ public class SysConfig {
      */
     public final static String PROVINCE_URL="http://guolin.tech/api/china";
 
+    /**
+     * 获取天气的url
+     */
+    public final static String WEATHRE_URL="http://guolin.tech/api/weather?key=bc0418b57b2d4918819d3974ac1285d9&cityid=";
+
 
 
 }
