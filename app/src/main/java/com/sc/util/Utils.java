@@ -14,6 +14,7 @@ import com.sc.SysConfig;
 import com.sc.main.beans.city;
 import com.sc.main.beans.country;
 import com.sc.main.beans.province;
+import com.sc.main.weatherBeans.weather;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -139,6 +140,31 @@ public class Utils {
             return true;
         }else{
             return false;
+        }
+
+    }
+
+
+    /**
+     * 获取天气封装代码
+     * @param response
+     * @return
+     */
+    public static weather handleWeatherResponse(String response){
+        try{
+            JSONObject jsonObject= new JSONObject(response);
+            JSONArray array= jsonObject.getJSONArray("HeWeather");
+            String weatherStr= null;
+            try {
+                weatherStr = array.get(0).toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            weather wet=new Gson().fromJson(weatherStr, weather.class);
+            return wet;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
         }
 
     }

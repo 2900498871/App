@@ -24,7 +24,7 @@ public class now {
     @SerializedName("cond")
     public cond cond;
 
-    private class cond{
+    public class cond{
         @SerializedName("code")
         public String code;
         @SerializedName("txt")

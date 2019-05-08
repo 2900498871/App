@@ -17,7 +17,7 @@ public class suggestions {
     public comf comf;
 
 
-    private  class cw{
+    public  class cw{
         @SerializedName("type")
         public String type;
         @SerializedName("brf")
@@ -26,7 +26,7 @@ public class suggestions {
         public String txt;
     }
 
-    private class sport{
+    public class sport{
         @SerializedName("type")
         public String type;
         @SerializedName("brf")

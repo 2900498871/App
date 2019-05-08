@@ -1,6 +1,7 @@
 package com.sc.main.beans;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import com.bravin.btoast.BToast;
 import com.sc.SysConfig;
 import com.sc.main.R;
+import com.sc.main.WeatherActivity;
 import com.sc.util.Utils;
 
 import org.litepal.crud.DataSupport;
@@ -99,6 +101,12 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevel==LEVEL_CITY){
                     selectedCity=cityList.get(position);
                    queryCountrys();
+                } else if(currentLevel == LEVE_COUNTRY){//跳转页面
+                    String weatherId=countryList.get(position).getWeatherId();
+                    Intent intent= new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weatherId",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
 
 
@@ -259,6 +267,8 @@ public class ChooseAreaFragment extends Fragment {
             progressDialog.dismiss();
         }
     }
+
+
 
 
 }

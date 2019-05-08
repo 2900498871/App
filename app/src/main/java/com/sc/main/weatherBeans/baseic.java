@@ -16,7 +16,7 @@ public class baseic {
     @SerializedName("update")
     public update update;
 
-    private class update{
+    public class update{
         @SerializedName("loc")
         public String updateTime;
     }

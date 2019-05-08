@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class aqi {
 
+    @SerializedName("city")
     public aqicity aqicity;
 
     public class aqicity{

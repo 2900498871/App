@@ -2,6 +2,8 @@ package com.sc.main.weatherBeans;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * 天气类
  */
@@ -17,7 +19,7 @@ public class weather {
     public baseic basic;
 
     @SerializedName("daily_forecast")
-    public forecast forecast;
+    public List<forecast> forecastList;
 
     @SerializedName("now")
     public now now;
