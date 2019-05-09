@@ -25,5 +25,9 @@ public class SysConfig {
     public final static String WEATHRE_URL="http://guolin.tech/api/weather?key=bc0418b57b2d4918819d3974ac1285d9&cityid=";
 
 
+    /**
+     * 获取每日一个图片的路径
+     */
+    public final static String WEATHER_IMG="http://guolin.tech/api/bing_pic";
 
 }

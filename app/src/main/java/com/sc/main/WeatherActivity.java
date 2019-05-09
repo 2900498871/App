@@ -1,18 +1,24 @@
 package com.sc.main;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bravin.btoast.BToast;
+import com.bumptech.glide.Glide;
 import com.sc.SysConfig;
 import com.sc.main.weatherBeans.forecast;
 import com.sc.main.weatherBeans.weather;
@@ -50,6 +56,8 @@ public class WeatherActivity extends AppCompatActivity {
 
     private TextView sportText;
 
+    private ImageView backgroundImg;
+
     /**
      * 服务器获取数据是自动加载
      */
@@ -72,10 +80,37 @@ public class WeatherActivity extends AppCompatActivity {
         comfortText=findViewById(R.id.comfort_text);
         carWashText=findViewById(R.id.car_wash_text);
         sportText=findViewById(R.id.sport_text);
+        backgroundImg=findViewById(R.id.bing_pic_img);
 
         //拿出缓存中的数据
         SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(this);
         String weatherStr = preferences.getString("weather",null);
+        String pic=preferences.getString("pic",null);
+        if(pic==null){
+            String image=loadImg();
+            SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+            editor.putString("pic",image);
+            editor.apply();
+            Glide.with(this).load(image).into(backgroundImg);
+        }else{
+            String image=loadImg();
+            if(!image.equals("")&&!image.equals(pic)){
+                SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                editor.putString("pic",image);
+                editor.apply();
+                Drawable drawable=Drawable.createFromPath(image);
+               // backgroundImg.setBackground(drawable);
+               // getWindow().getDecorView().setBackgroundDrawable(drawable);
+                Glide.with(this).load(image).into(backgroundImg);
+            }else{
+                Drawable drawable=Drawable.createFromPath(pic);
+              //  backgroundImg.setBackground(drawable);
+              //  getWindow().getDecorView().setBackgroundDrawable(drawable);
+                Glide.with(this).load(pic).into(backgroundImg);
+            }
+
+        }
+
         if(weatherStr!=null){
             weather weather= Utils.handleWeatherResponse(weatherStr);
            showWeatherInfo(weather);
@@ -178,6 +213,26 @@ public class WeatherActivity extends AppCompatActivity {
            }
         }
     };
+
+    public String loadImg(){
+        final String[] str = {""};
+        OkHttpClient client= new OkHttpClient();
+        Request request=new Request.Builder().url(SysConfig.WEATHER_IMG).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                BToast.error(WeatherActivity.this).text("数据加载失败,请检查网络是否连接").show();
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String pic=response.body().string();
+                str[0] =pic;
+            }
+        });
+    return str[0];
+    }
 
 
 }
