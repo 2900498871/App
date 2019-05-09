@@ -1,16 +1,22 @@
 package com.sc.main;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,6 +31,9 @@ import com.sc.main.weatherBeans.weather;
 import com.sc.util.Utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -58,6 +67,10 @@ public class WeatherActivity extends AppCompatActivity {
 
     private ImageView backgroundImg;
 
+    private String pic;
+
+    private String picNow;
+
     /**
      * 服务器获取数据是自动加载
      */
@@ -66,6 +79,8 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setStatusBarFullTransparent();
+       // setFitSystemWindow(true);
         setContentView(R.layout.activity_weather);
 
         //初始化各种控件
@@ -85,28 +100,23 @@ public class WeatherActivity extends AppCompatActivity {
         //拿出缓存中的数据
         SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(this);
         String weatherStr = preferences.getString("weather",null);
-        String pic=preferences.getString("pic",null);
-        if(pic==null){
-            String image=loadImg();
+        pic=preferences.getString("pic",null);
+        if("".equals(pic)||pic==null){
+             pic=loadImg();
             SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-            editor.putString("pic",image);
+            editor.putString("pic",pic);
             editor.apply();
-            Glide.with(this).load(image).into(backgroundImg);
+            Glide.with(WeatherActivity.this).load(pic).into(backgroundImg);
         }else{
             String image=loadImg();
             if(!image.equals("")&&!image.equals(pic)){
                 SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                 editor.putString("pic",image);
                 editor.apply();
-                Drawable drawable=Drawable.createFromPath(image);
-               // backgroundImg.setBackground(drawable);
-               // getWindow().getDecorView().setBackgroundDrawable(drawable);
-                Glide.with(this).load(image).into(backgroundImg);
+                pic=image;
+                Glide.with(WeatherActivity.this).load(image).into(backgroundImg);
             }else{
-                Drawable drawable=Drawable.createFromPath(pic);
-              //  backgroundImg.setBackground(drawable);
-              //  getWindow().getDecorView().setBackgroundDrawable(drawable);
-                Glide.with(this).load(pic).into(backgroundImg);
+                Glide.with(WeatherActivity.this).load(pic).into(backgroundImg);
             }
 
         }
@@ -120,6 +130,7 @@ public class WeatherActivity extends AppCompatActivity {
             scrollView.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
+
     }
 
     /**
@@ -148,7 +159,6 @@ public class WeatherActivity extends AppCompatActivity {
                     message.what=200;
                     weath=weather;
                     handler.sendMessage(message);
-
                 }else{
                     BToast.error(WeatherActivity.this).text("数据加载失败").show();
                 }
@@ -161,6 +171,38 @@ public class WeatherActivity extends AppCompatActivity {
      * @param weather
      */
     public  void showWeatherInfo(weather weather){
+
+        if("".equals(pic)||pic==null){
+            String weatherStatus=weather.now.cond_code;//天气状态  100 ：晴  ；100-104 多云   ；104-213  风 ； 213-399   雨  ；399-499 雪  499-999  雾
+            int code=Integer.parseInt(weatherStatus);
+            Random random= new Random();
+            if(code==100){//晴天
+                List sunnyList =this.getList("sunny");
+                int num=random.nextInt(20);
+                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
+            }else if(100<code&&code<=104){
+                List sunnyList =this.getList("cloud");
+                int num=random.nextInt(10);
+                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
+            }else if(104<code&&code<=213){
+                List sunnyList =this.getList("windy");
+                int num=random.nextInt(10);
+                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
+            }else if(213<code&&code<=399){
+                List sunnyList =this.getList("rain");
+                int num=random.nextInt(20);
+                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
+            }else if(399<code&&code<=499){
+                List sunnyList =this.getList("snow");
+                int num=random.nextInt(10);
+                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
+            }else if(499<code&&code<=999){
+                List sunnyList =this.getList("wu");
+                int num=random.nextInt(10);
+                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
+            }
+        }
+
         String cityName=weather.basic.cityName;
         String uptime=weather.basic.update.updateTime;
         titleCity.setText(cityName);
@@ -215,23 +257,149 @@ public class WeatherActivity extends AppCompatActivity {
     };
 
     public String loadImg(){
-        final String[] str = {""};
+        picNow="";
         OkHttpClient client= new OkHttpClient();
         Request request=new Request.Builder().url(SysConfig.WEATHER_IMG).build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                BToast.error(WeatherActivity.this).text("数据加载失败,请检查网络是否连接").show();
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        BToast.error(WeatherActivity.this).text("数据加载失败").show();
+                    }
+                });
             }
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String pic=response.body().string();
-                str[0] =pic;
+                picNow=response.body().string();
             }
         });
-    return str[0];
+    return picNow;
+    }
+    /**
+     * 全透状态栏
+     */
+    protected void setStatusBarFullTransparent() {
+        if (Build.VERSION.SDK_INT >= 21) {//21表示5.0
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+        } else if (Build.VERSION.SDK_INT >= 19) {//19表示4.4
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            //虚拟键盘也透明
+            //getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        }
+
+    }
+
+    /**
+     * 如果需要内容紧贴着StatusBar
+     * 应该在对应的xml布局文件中，设置根布局fitsSystemWindows=true。
+     */
+    private View contentViewGroup;
+
+    protected void setFitSystemWindow(boolean fitSystemWindow) {
+        if (contentViewGroup == null) {
+            contentViewGroup = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        }
+        contentViewGroup.setFitsSystemWindows(fitSystemWindow);
+    }
+
+    public List getList(String type){
+        List sunnyList = new ArrayList();
+        if("sunny".equals(type)){//存放晴天图片
+            sunnyList.add(R.drawable.rain1);
+            sunnyList.add(R.drawable.rain2);
+            sunnyList.add(R.drawable.rain3);
+            sunnyList.add(R.drawable.rain4);
+            sunnyList.add(R.drawable.rain5);
+            sunnyList.add(R.drawable.rain6);
+            sunnyList.add(R.drawable.rain7);
+            sunnyList.add(R.drawable.rain8);
+            sunnyList.add(R.drawable.rain9);
+            sunnyList.add(R.drawable.rain10);
+            sunnyList.add(R.drawable.rain11);
+            sunnyList.add(R.drawable.rain12);
+            sunnyList.add(R.drawable.rain13);
+            sunnyList.add(R.drawable.rain14);
+            sunnyList.add(R.drawable.rain15);
+            sunnyList.add(R.drawable.rain16);
+            sunnyList.add(R.drawable.rain17);
+            sunnyList.add(R.drawable.rain18);
+            sunnyList.add(R.drawable.rain19);
+            sunnyList.add(R.drawable.rain20);
+        }else if("cloud".equals(type)){
+            sunnyList.add(R.drawable.cloud1);
+            sunnyList.add(R.drawable.cloud2);
+            sunnyList.add(R.drawable.cloud3);
+            sunnyList.add(R.drawable.cloud4);
+            sunnyList.add(R.drawable.cloud5);
+            sunnyList.add(R.drawable.cloud6);
+            sunnyList.add(R.drawable.cloud7);
+            sunnyList.add(R.drawable.cloud8);
+            sunnyList.add(R.drawable.cloud9);
+            sunnyList.add(R.drawable.cloud10);
+        }else if("windy".equals(type)){
+            sunnyList.add(R.drawable.windy1);
+            sunnyList.add(R.drawable.windy2);
+            sunnyList.add(R.drawable.windy3);
+            sunnyList.add(R.drawable.windy4);
+            sunnyList.add(R.drawable.windy5);
+            sunnyList.add(R.drawable.windy6);
+            sunnyList.add(R.drawable.windy7);
+            sunnyList.add(R.drawable.windy8);
+            sunnyList.add(R.drawable.windy9);
+            sunnyList.add(R.drawable.windy10);
+        }else if("rain".equals(type)){
+            sunnyList.add(R.drawable.rain1);
+            sunnyList.add(R.drawable.rain2);
+            sunnyList.add(R.drawable.rain3);
+            sunnyList.add(R.drawable.rain4);
+            sunnyList.add(R.drawable.rain5);
+            sunnyList.add(R.drawable.rain6);
+            sunnyList.add(R.drawable.rain7);
+            sunnyList.add(R.drawable.rain8);
+            sunnyList.add(R.drawable.rain9);
+            sunnyList.add(R.drawable.rain10);
+            sunnyList.add(R.drawable.rain11);
+            sunnyList.add(R.drawable.rain12);
+            sunnyList.add(R.drawable.rain13);
+            sunnyList.add(R.drawable.rain14);
+            sunnyList.add(R.drawable.rain15);
+            sunnyList.add(R.drawable.rain16);
+            sunnyList.add(R.drawable.rain17);
+            sunnyList.add(R.drawable.rain18);
+            sunnyList.add(R.drawable.rain19);
+            sunnyList.add(R.drawable.rain20);
+        }else if("wu".equals(type)){
+            sunnyList.add(R.drawable.wu1);
+            sunnyList.add(R.drawable.wu2);
+            sunnyList.add(R.drawable.wu3);
+            sunnyList.add(R.drawable.wu4);
+            sunnyList.add(R.drawable.wu5);
+            sunnyList.add(R.drawable.wu6);
+            sunnyList.add(R.drawable.wu7);
+            sunnyList.add(R.drawable.wu8);
+            sunnyList.add(R.drawable.wu9);
+            sunnyList.add(R.drawable.wu10);
+        }else if("snow".equals(type)){
+            sunnyList.add(R.drawable.snowy1);
+            sunnyList.add(R.drawable.snowy2);
+            sunnyList.add(R.drawable.snowy3);
+            sunnyList.add(R.drawable.snowy4);
+            sunnyList.add(R.drawable.snowy5);
+            sunnyList.add(R.drawable.snowy6);
+            sunnyList.add(R.drawable.snowy7);
+            sunnyList.add(R.drawable.snowy8);
+            sunnyList.add(R.drawable.snowy9);
+            sunnyList.add(R.drawable.snowy10);
+        }
+        return sunnyList;
+
     }
 
 

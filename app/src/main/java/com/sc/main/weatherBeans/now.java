@@ -12,6 +12,9 @@ public class now {
     @SerializedName("cloud")
     public String cloud;
 
+    @SerializedName("cond_code")
+    public String cond_code;
+
     @SerializedName("wind_dir")
     public String wind_dir;
 
