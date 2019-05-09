@@ -94,7 +94,7 @@ public class WeatherActivity extends AppCompatActivity {
         // 激活导航栏设置
                 tintManager.setNavigationBarTintEnabled(true);
         // 设置一个颜色给系统栏
-              //  tintManager.setTintColor(Color.parseColor("#40C4FF"));
+         //   tintManager.setTintColor(Color.parseColor("#1AFFFFFF"));
 
 
         //初始化各种控件
