@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.bravin.btoast.BToast;
 import com.bumptech.glide.Glide;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sc.SysConfig;
 import com.sc.main.weatherBeans.forecast;
 import com.sc.main.weatherBeans.weather;
@@ -79,9 +80,22 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStatusBarFullTransparent();
+       // setStatusBarFullTransparent();
        // setFitSystemWindow(true);
         setContentView(R.layout.activity_weather);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            //透明状态栏
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+        // 创建状态栏的管理实例
+        SystemBarTintManager tintManager = new SystemBarTintManager(this);
+        // 激活状态栏设置
+                tintManager.setStatusBarTintEnabled(true);
+        // 激活导航栏设置
+                tintManager.setNavigationBarTintEnabled(true);
+        // 设置一个颜色给系统栏
+              //  tintManager.setTintColor(Color.parseColor("#40C4FF"));
+
 
         //初始化各种控件
         scrollView=findViewById(R.id.weather_layout);
