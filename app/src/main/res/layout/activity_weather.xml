@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".WeatherActivity">
 
-
         <ImageView
             android:id="@+id/bing_pic_img"
             android:layout_width="match_parent"
@@ -20,6 +19,10 @@
         app:srlAccentColor="#00000000"
         app:srlPrimaryColor="#00000000"
         app:srlEnablePreviewInEditMode="true">
+
+        <com.scwang.smartrefresh.layout.header.ClassicsHeader
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
             <ScrollView
             android:id="@+id/weather_layout"
