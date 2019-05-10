@@ -30,6 +30,8 @@ import com.sc.SysConfig;
 import com.sc.main.weatherBeans.forecast;
 import com.sc.main.weatherBeans.weather;
 import com.sc.util.Utils;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,6 +79,10 @@ public class WeatherActivity extends AppCompatActivity {
      */
     private weather weath;
 
+    private RefreshLayout mRefreshLayout;
+
+    private  String weatherId="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,6 +117,30 @@ public class WeatherActivity extends AppCompatActivity {
         sportText=findViewById(R.id.sport_text);
         backgroundImg=findViewById(R.id.bing_pic_img);
 
+        //初始化
+        mRefreshLayout=findViewById(R.id.refreshLayout);
+
+        //刷新
+        mRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+                requestWeather(weatherId);
+                refreshlayout.finishRefresh(true);
+            }
+        });
+        //加载更多
+       /* mRefreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
+            @Override
+            public void onLoadmore(RefreshLayout refreshlayout) {
+                for(int i=0;i<30;i++){
+                    mData.add("小明"+i);
+                }
+                mNameAdapter.notifyDataSetChanged();
+                refreshlayout.finishLoadmore();
+            }
+        });*/
+
+
         //拿出缓存中的数据
         SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(this);
         String weatherStr = preferences.getString("weather",null);
@@ -137,10 +167,11 @@ public class WeatherActivity extends AppCompatActivity {
 
         if(weatherStr!=null){
             weather weather= Utils.handleWeatherResponse(weatherStr);
+            weatherId=weather.basic.weatherId;
            showWeatherInfo(weather);
         }else{//从服务器中查询天气
-            String weatherId=getIntent().getStringExtra("weatherId");
             //若没有数据把控件隐藏起来
+            weatherId=getIntent().getStringExtra("weatherId");
             scrollView.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }

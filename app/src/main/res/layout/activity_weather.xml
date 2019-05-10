@@ -13,33 +13,42 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
 
-        <ScrollView
-        android:id="@+id/weather_layout"
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        android:clipToPadding="true"
-        android:scrollbars="none"
-        android:overScrollMode="never">
+        app:srlAccentColor="#00000000"
+        app:srlPrimaryColor="#00000000"
+        app:srlEnablePreviewInEditMode="true">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <ScrollView
+            android:id="@+id/weather_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            android:clipToPadding="true"
+            android:scrollbars="none"
+            android:overScrollMode="never">
 
-    <include layout="@layout/title" />
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    <include layout="@layout/now" />
+            <include layout="@layout/title" />
 
-    <include layout="@layout/forecast" />
+            <include layout="@layout/now" />
 
-    <include layout="@layout/aqi" />
+            <include layout="@layout/forecast" />
 
-     <include layout="@layout/suggestion" />
+            <include layout="@layout/aqi" />
+
+             <include layout="@layout/suggestion" />
 
 
-    </LinearLayout>
+        </LinearLayout>
 
 
-  </ScrollView>
+        </ScrollView>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 </FrameLayout>
