@@ -103,10 +103,17 @@ public class ChooseAreaFragment extends Fragment {
                    queryCountrys();
                 } else if(currentLevel == LEVE_COUNTRY){//跳转页面
                     String weatherId=countryList.get(position).getWeatherId();
-                    Intent intent= new Intent(getActivity(), WeatherActivity.class);
-                    intent.putExtra("weatherId",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if(getActivity() instanceof WeatherActivity){//判断是否是从天气界面进入程序的
+                        WeatherActivity activity=(WeatherActivity)getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        activity.mRefreshLayout.autoRefresh(R.id.refreshLayout);
+                        activity.requestWeather(weatherId);
+                    }else{
+                        Intent intent= new Intent(getActivity(), WeatherActivity.class);
+                        intent.putExtra("weatherId",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }
                 }
 
 
