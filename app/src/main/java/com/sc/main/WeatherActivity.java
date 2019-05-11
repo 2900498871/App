@@ -47,7 +47,6 @@ import com.sc.main.beans.location;
 import com.sc.main.weatherBeans.forecast;
 import com.sc.main.weatherBeans.weather;
 import com.sc.util.Utils;
-import com.sc.util.getLocationUtils;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
