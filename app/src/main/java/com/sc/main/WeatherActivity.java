@@ -90,6 +90,8 @@ public class WeatherActivity extends AppCompatActivity {
 
     private ImageView backgroundImg;
 
+    private Button locationButton;
+
     private String pic;
 
     private String picNow;
@@ -160,11 +162,23 @@ public class WeatherActivity extends AppCompatActivity {
 
         drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout) ;
         navButton=(Button)findViewById(R.id.nav_button);
+        locationButton=findViewById(R.id.location_button);
 
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (EasyPermissions.hasPermissions(WeatherActivity.this, perms)) {
+                    // 已经申请过权限，做想做的事
+                    getPositioning();
+                } else {
+                    ActivityCompat.requestPermissions(WeatherActivity.this,perms,1);
+                }
             }
         });
 
@@ -186,7 +200,7 @@ public class WeatherActivity extends AppCompatActivity {
         //初始化各种控件
         scrollView=findViewById(R.id.weather_layout);
         titleCity=findViewById(R.id.title_city);
-        titleUptime=findViewById(R.id.title_update_time);
+      //  titleUptime=findViewById(R.id.title_update_time);
         degreeText=findViewById(R.id.degree_text);
         weatherInfoText=findViewById(R.id.weather_info_text);
         forecastLayout=findViewById(R.id.forecast_layout);
@@ -196,6 +210,7 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText=findViewById(R.id.car_wash_text);
         sportText=findViewById(R.id.sport_text);
         backgroundImg=findViewById(R.id.bing_pic_img);
+
 
         //初始化
         mRefreshLayout=findViewById(R.id.refreshLayout);
@@ -338,7 +353,7 @@ public class WeatherActivity extends AppCompatActivity {
         String cityName=weather.basic.cityName;
         String uptime=weather.basic.update.updateTime;
         titleCity.setText(cityName);
-        titleUptime.setText(uptime);
+      //  titleUptime.setText(uptime);
 
         String degree=weather.now.tmp+"℃";
         String weatherInfoStr=weather.now.cond.txt;

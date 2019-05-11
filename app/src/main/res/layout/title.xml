@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <Button
         android:id="@+id/nav_button"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginLeft="10dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
         android:background="@drawable/ic_home" />
 
     <TextView
@@ -19,7 +21,7 @@
         android:hint="北京"
         android:textColor="#fff"
         android:textSize="20sp" />
-    <TextView
+   <!-- <TextView
         android:id="@+id/title_update_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,6 +30,13 @@
         android:layout_marginRight="10dp"
         android:hint="00：00"
         android:textColor="#fff"
-        android:textSize="16sp" />
-
+        android:textSize="16sp" />-->
+    <Button
+        android:id="@+id/location_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/loaction" />
 </RelativeLayout>
