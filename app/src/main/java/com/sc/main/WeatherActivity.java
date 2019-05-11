@@ -1,38 +1,27 @@
 package com.sc.main;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationListener;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -51,8 +40,6 @@ import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.io.IOException;
-import java.security.Permission;
-import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -70,7 +57,6 @@ public class WeatherActivity extends AppCompatActivity {
 
     private TextView titleCity;
 
-    private TextView titleUptime;
 
     private TextView degreeText;
 
@@ -145,8 +131,25 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
-
+        //初始化各种控件
+        scrollView=findViewById(R.id.weather_layout);
+        titleCity=findViewById(R.id.title_city);
+        //  titleUptime=findViewById(R.id.title_update_time);
+        degreeText=findViewById(R.id.degree_text);
+        weatherInfoText=findViewById(R.id.weather_info_text);
+        forecastLayout=findViewById(R.id.forecast_layout);
+        aqiText=findViewById(R.id.aqi_text);
+        pm25Text=findViewById(R.id.pm25_text);
+        comfortText=findViewById(R.id.comfort_text);
+        carWashText=findViewById(R.id.car_wash_text);
+        sportText=findViewById(R.id.sport_text);
+        backgroundImg=findViewById(R.id.bing_pic_img);
+        //初始化
+        mRefreshLayout=findViewById(R.id.refreshLayout);
         //定位代码
+        drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout) ;
+        navButton=(Button)findViewById(R.id.nav_button);
+        locationButton=findViewById(R.id.location_button);
 
         //申请权限
         EasyPermissions.requestPermissions(
@@ -157,12 +160,6 @@ public class WeatherActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
         String[] perms = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
-
-
-
-        drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout) ;
-        navButton=(Button)findViewById(R.id.nav_button);
-        locationButton=findViewById(R.id.location_button);
 
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,23 +194,7 @@ public class WeatherActivity extends AppCompatActivity {
          //   tintManager.setTintColor(Color.parseColor("#1AFFFFFF"));
 
 
-        //初始化各种控件
-        scrollView=findViewById(R.id.weather_layout);
-        titleCity=findViewById(R.id.title_city);
-      //  titleUptime=findViewById(R.id.title_update_time);
-        degreeText=findViewById(R.id.degree_text);
-        weatherInfoText=findViewById(R.id.weather_info_text);
-        forecastLayout=findViewById(R.id.forecast_layout);
-        aqiText=findViewById(R.id.aqi_text);
-        pm25Text=findViewById(R.id.pm25_text);
-        comfortText=findViewById(R.id.comfort_text);
-        carWashText=findViewById(R.id.car_wash_text);
-        sportText=findViewById(R.id.sport_text);
-        backgroundImg=findViewById(R.id.bing_pic_img);
 
-
-        //初始化
-        mRefreshLayout=findViewById(R.id.refreshLayout);
 
         //刷新
         mRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
@@ -223,17 +204,7 @@ public class WeatherActivity extends AppCompatActivity {
                 refreshlayout.finishRefresh(true);
             }
         });
-        //加载更多
-       /* mRefreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
-            @Override
-            public void onLoadmore(RefreshLayout refreshlayout) {
-                for(int i=0;i<30;i++){
-                    mData.add("小明"+i);
-                }
-                mNameAdapter.notifyDataSetChanged();
-                refreshlayout.finishLoadmore();
-            }
-        });*/
+
 
 
         //拿出缓存中的数据
@@ -274,10 +245,6 @@ public class WeatherActivity extends AppCompatActivity {
             scrollView.setVisibility(View.INVISIBLE);
             showWeatherInfo(we);
         }
-
-
-
-
     }
 
     /**
@@ -322,32 +289,10 @@ public class WeatherActivity extends AppCompatActivity {
         if("".equals(pic)||pic==null){
             String weatherStatus=weather.now.cond_code;//天气状态  100 ：晴  ；100-104 多云   ；104-213  风 ； 213-399   雨  ；399-499 雪  499-999  雾
             int code=Integer.parseInt(weatherStatus);
-            Random random= new Random();
-            if(code==100){//晴天
-                List sunnyList =this.getList("sunny");
-                int num=random.nextInt(20);
+               Random random= new Random();
+                List sunnyList =this.getList();
+                int num=random.nextInt(sunnyList.size());
                 Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
-            }else if(100<code&&code<=104){
-                List sunnyList =this.getList("cloud");
-                int num=random.nextInt(10);
-                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
-            }else if(104<code&&code<=213){
-                List sunnyList =this.getList("windy");
-                int num=random.nextInt(10);
-                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
-            }else if(213<code&&code<=399){
-                List sunnyList =this.getList("rain");
-                int num=random.nextInt(20);
-                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
-            }else if(399<code&&code<=499){
-                List sunnyList =this.getList("snow");
-                int num=random.nextInt(10);
-                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
-            }else if(499<code&&code<=999){
-                List sunnyList =this.getList("wu");
-                int num=random.nextInt(10);
-                Glide.with(this).load(sunnyList.get(num)).into(backgroundImg);
-            }
         }
 
         String cityName=weather.basic.cityName;
@@ -456,9 +401,9 @@ public class WeatherActivity extends AppCompatActivity {
         contentViewGroup.setFitsSystemWindows(fitSystemWindow);
     }
 
-    public List getList(String type){
+    public List getList(){
         List sunnyList = new ArrayList();
-        if("sunny".equals(type)){//存放晴天图片
+
             sunnyList.add(R.drawable.rain1);
             sunnyList.add(R.drawable.rain2);
             sunnyList.add(R.drawable.rain3);
@@ -479,7 +424,6 @@ public class WeatherActivity extends AppCompatActivity {
             sunnyList.add(R.drawable.rain18);
             sunnyList.add(R.drawable.rain19);
             sunnyList.add(R.drawable.rain20);
-        }else if("cloud".equals(type)){
             sunnyList.add(R.drawable.cloud1);
             sunnyList.add(R.drawable.cloud2);
             sunnyList.add(R.drawable.cloud3);
@@ -490,7 +434,6 @@ public class WeatherActivity extends AppCompatActivity {
             sunnyList.add(R.drawable.cloud8);
             sunnyList.add(R.drawable.cloud9);
             sunnyList.add(R.drawable.cloud10);
-        }else if("windy".equals(type)){
             sunnyList.add(R.drawable.windy1);
             sunnyList.add(R.drawable.windy2);
             sunnyList.add(R.drawable.windy3);
@@ -501,7 +444,6 @@ public class WeatherActivity extends AppCompatActivity {
             sunnyList.add(R.drawable.windy8);
             sunnyList.add(R.drawable.windy9);
             sunnyList.add(R.drawable.windy10);
-        }else if("rain".equals(type)){
             sunnyList.add(R.drawable.rain1);
             sunnyList.add(R.drawable.rain2);
             sunnyList.add(R.drawable.rain3);
@@ -522,7 +464,6 @@ public class WeatherActivity extends AppCompatActivity {
             sunnyList.add(R.drawable.rain18);
             sunnyList.add(R.drawable.rain19);
             sunnyList.add(R.drawable.rain20);
-        }else if("wu".equals(type)){
             sunnyList.add(R.drawable.wu1);
             sunnyList.add(R.drawable.wu2);
             sunnyList.add(R.drawable.wu3);
@@ -533,7 +474,6 @@ public class WeatherActivity extends AppCompatActivity {
             sunnyList.add(R.drawable.wu8);
             sunnyList.add(R.drawable.wu9);
             sunnyList.add(R.drawable.wu10);
-        }else if("snow".equals(type)){
             sunnyList.add(R.drawable.snowy1);
             sunnyList.add(R.drawable.snowy2);
             sunnyList.add(R.drawable.snowy3);
@@ -544,7 +484,7 @@ public class WeatherActivity extends AppCompatActivity {
             sunnyList.add(R.drawable.snowy8);
             sunnyList.add(R.drawable.snowy9);
             sunnyList.add(R.drawable.snowy10);
-        }
+
         return sunnyList;
 
     }
@@ -602,14 +542,4 @@ public void getWeather(String location){
        });
 }
 
-  /*  @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode==1){
-            if(grantResults.length==2){
-                getPositioning();
-            }else{
-                BToast.error(this).text("定位权限被拒绝！").show();
-            }
-        }
-    }*/
 }
