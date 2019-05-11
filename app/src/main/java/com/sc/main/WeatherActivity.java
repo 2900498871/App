@@ -1,13 +1,20 @@
 package com.sc.main;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -25,18 +32,28 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.bravin.btoast.BToast;
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sc.SysConfig;
+import com.sc.main.beans.location;
 import com.sc.main.weatherBeans.forecast;
 import com.sc.main.weatherBeans.weather;
 import com.sc.util.Utils;
+import com.sc.util.getLocationUtils;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.io.IOException;
+import java.security.Permission;
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -46,6 +63,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class WeatherActivity extends AppCompatActivity {
 
@@ -89,10 +107,57 @@ public class WeatherActivity extends AppCompatActivity {
     public DrawerLayout drawerLayout;
     public Button navButton;
 
+    /**
+     * 实现定位
+     */
+    //声明AMapLocationClient类对象
+    public AMapLocationClient mLocationClient = null;
+    //声明定位回调监听器
+    public AMapLocationListener mLocationListener = new AMapLocationListener() {
+        @Override
+        public void onLocationChanged(AMapLocation aMapLocation) {
+            location location = new location();
+            location.setLatitude(aMapLocation.getLatitude());
+            location.setLongitude(aMapLocation.getLongitude());
+            location.setAddress(aMapLocation.getAddress());
+            location.setCountry(aMapLocation.getCountry());
+            location.setCity(aMapLocation.getCity());
+            location.setDistrict(aMapLocation.getDistrict());
+            location.setStreet(aMapLocation.getStreet());
+            location.setStreetNum(aMapLocation.getStreetNum());
+            location.setCityCode(aMapLocation.getCityCode());
+            location.setAdCode(aMapLocation.getAdCode());
+            location.setPoiName(aMapLocation.getPoiName());
+            location.setAoiName(aMapLocation.getAoiName());
+            location.setErrorCode(aMapLocation.getErrorCode());
+            Gson gson = new Gson();
+            String json = gson.toJson(location);
+            getWeather(location.getLongitude()+","+location.getLatitude());
+        }
+    };
+    //声明AMapLocationClientOption对象
+    public AMapLocationClientOption mLocationOption = null;
+
+    //定位的城市id
+    public String cityId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+
+        //定位代码
+
+        //申请权限
+        EasyPermissions.requestPermissions(
+                WeatherActivity.this,
+                "申请权限",
+                0,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        String[] perms = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+
+
 
         drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout) ;
         navButton=(Button)findViewById(R.id.nav_button);
@@ -140,7 +205,7 @@ public class WeatherActivity extends AppCompatActivity {
         mRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
-                requestWeather(weatherId);
+                requestWeather(weath.basic.weatherId);
                 refreshlayout.finishRefresh(true);
             }
         });
@@ -180,17 +245,24 @@ public class WeatherActivity extends AppCompatActivity {
             }
 
         }
-
-        if(weatherStr!=null){
-            weather weather= Utils.handleWeatherResponse(weatherStr);
-            weatherId=weather.basic.weatherId;
-           showWeatherInfo(weather);
-        }else{//从服务器中查询天气
+        if(weatherStr==null||"".equals(weatherStr)){//初次进入程序(定位)
+            if (EasyPermissions.hasPermissions(this, perms)) {
+                // 已经申请过权限，做想做的事
+                scrollView.setVisibility(View.INVISIBLE);
+                getPositioning();
+            } else {
+                ActivityCompat.requestPermissions(WeatherActivity.this,perms,1);
+            }
+        }else{//获取缓存数据
             //若没有数据把控件隐藏起来
-            weatherId=getIntent().getStringExtra("weatherId");
+            weather we= Utils.handleWeatherResponse(weatherStr);
+            weath=we;
             scrollView.setVisibility(View.INVISIBLE);
-            requestWeather(weatherId);
+            showWeatherInfo(we);
         }
+
+
+
 
     }
 
@@ -463,5 +535,67 @@ public class WeatherActivity extends AppCompatActivity {
 
     }
 
+    // 高德定位,获取地理位置
+    public void getPositioning() {
+        //初始化定位
+        mLocationClient = new AMapLocationClient(getApplicationContext());
+        //设置定位回调监听
+        mLocationClient.setLocationListener(mLocationListener);
+        //初始化AMapLocationClientOption对象
+        mLocationOption = new AMapLocationClientOption();
+        //获取一次定位结果：
+        //该方法默认为false。
+        mLocationOption.setOnceLocation(true);
+        //获取最近3s内精度最高的一次定位结果：
+        //设置setOnceLocationLatest(boolean b)接口为true，启动定位时SDK会返回最近3s内精度最高的一次定位结果。如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
+        mLocationOption.setOnceLocationLatest(true);
+        //设置是否返回地址信息（默认返回地址信息）
+        mLocationOption.setNeedAddress(true);
+        //设置是否允许模拟位置,默认为true，允许模拟位置
+        mLocationOption.setMockEnable(true);
+        //给定位客户端对象设置定位参数
+        mLocationClient.setLocationOption(mLocationOption);
+        //设置定位模式为AMapLocationMode.Hight_Accuracy，高精度模式。
+       // mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        //启动定位
+        mLocationClient.startLocation();
+    }
 
+/**
+ * 实况天气
+ * 实况天气即为当前时间点的天气状况以及温湿风压等气象指数，具体包含的数据：体感温度、
+ * 实测温度、天气状况、风力、风速、风向、相对湿度、大气压强、降水量、能见度等。
+ *
+ */
+public void getWeather(String location){
+       OkHttpClient client=new OkHttpClient();
+       Request request=new Request.Builder().url(SysConfig.WEATHER_NEW_URL+location).build();
+       client.newCall(request).enqueue(new Callback() {
+           @Override
+           public void onFailure(Call call, IOException e) {
+               BToast.error(WeatherActivity.this).text("无法连接服务器,请检查网络！").show();
+           }
+
+           @Override
+           public void onResponse(Call call, Response response) throws IOException {
+               String responseStr=response.body().string();
+               weather weathe= Utils.handleRealWeatherResponse(responseStr);
+               String WeatherId=weathe.basic.weatherId;
+               String st=WeatherId.substring(0,WeatherId.length()-1)+"1";
+               weatherId=st;
+               requestWeather(st);
+           }
+       });
+}
+
+  /*  @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==1){
+            if(grantResults.length==2){
+                getPositioning();
+            }else{
+                BToast.error(this).text("定位权限被拒绝！").show();
+            }
+        }
+    }*/
 }

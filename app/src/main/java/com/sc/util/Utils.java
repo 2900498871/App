@@ -169,6 +169,29 @@ public class Utils {
 
     }
 
+    /**
+     * 获取天气封装代码
+     * @param response
+     * @return
+     */
+    public static weather handleRealWeatherResponse(String response){
+        try{
+            JSONObject jsonObject= new JSONObject(response);
+            JSONArray array= jsonObject.getJSONArray("HeWeather6");
+            String weatherStr= null;
+            try {
+                weatherStr = array.get(0).toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            weather wet=new Gson().fromJson(weatherStr, weather.class);
+            return wet;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
+    }
 
 
 
