@@ -127,6 +127,8 @@ public class WeatherActivity extends AppCompatActivity {
 
     //定位的城市id
     public String cityId;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -193,9 +195,6 @@ public class WeatherActivity extends AppCompatActivity {
         // 设置一个颜色给系统栏
          //   tintManager.setTintColor(Color.parseColor("#1AFFFFFF"));
 
-
-
-
         //刷新
         mRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
@@ -204,8 +203,6 @@ public class WeatherActivity extends AppCompatActivity {
                 refreshlayout.finishRefresh(true);
             }
         });
-
-
 
         //拿出缓存中的数据
         SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(this);
@@ -269,6 +266,7 @@ public class WeatherActivity extends AppCompatActivity {
                     editor.putString("weather",responseStr);
                     editor.apply();
                     //显示天气
+                    weath=weather;
                     Message message=new Message();
                     message.what=200;
                     weath=weather;
@@ -344,6 +342,8 @@ public class WeatherActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
            if(msg.what==200){//如果成功异步执行代码
                showWeatherInfo(weath);
+           }else if(msg.what==100){
+               requestWeather(weatherId);
            }
         }
     };
@@ -537,7 +537,9 @@ public void getWeather(String location){
                String WeatherId=weathe.basic.weatherId;
                String st=WeatherId.substring(0,WeatherId.length()-1)+"1";
                weatherId=st;
-               requestWeather(st);
+               Message msg=new Message();
+               msg.what=100;
+              handler.sendMessage(msg);
            }
        });
 }
