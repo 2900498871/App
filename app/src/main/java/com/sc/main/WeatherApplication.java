@@ -1,8 +1,10 @@
 package com.sc.main;
 
 import android.app.Application;
+import android.content.Intent;
 
 import com.bravin.btoast.BToast;
+import com.sc.Services.autoUpdateService;
 
 import org.litepal.LitePal;
 
@@ -13,6 +15,9 @@ public class WeatherApplication extends Application {
     public void onCreate() {
         super.onCreate();
         LitePal.initialize(this);
+        //更新天气服务
+        Intent intent= new Intent(this, autoUpdateService.class);
+        startService(intent);
         BToast.Config.getInstance()
 //                .setAnimate() // Whether to startAnimation. default is fasle;
 //                .setAnimationDuration()// Animation duration. default is 800 millisecond
