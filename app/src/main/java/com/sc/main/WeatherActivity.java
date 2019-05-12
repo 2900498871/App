@@ -228,13 +228,8 @@ public class WeatherActivity extends AppCompatActivity {
 
         }
         if(weatherStr==null||"".equals(weatherStr)){//初次进入程序(定位)
-            if (EasyPermissions.hasPermissions(this, perms)) {
-                // 已经申请过权限，做想做的事
                 scrollView.setVisibility(View.INVISIBLE);
-                getPositioning();
-            } else {
-                ActivityCompat.requestPermissions(WeatherActivity.this,perms,1);
-            }
+                requestWeather("CN101010100");
         }else{//获取缓存数据
             //若没有数据把控件隐藏起来
             weather we= Utils.handleWeatherResponse(weatherStr);
